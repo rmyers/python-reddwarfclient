@@ -51,6 +51,7 @@ class Manager(utils.HookableMixin):
     etc.) and provide CRUD operations for them.
     """
     resource_class = None
+    name = None
 
     def __init__(self, api):
         self.api = api

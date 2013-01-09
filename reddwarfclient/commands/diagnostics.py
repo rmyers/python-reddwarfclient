@@ -30,6 +30,7 @@ class DiagnosticsInterrogator(base.ManagerWithFind):
     Manager class for Interrogator resource
     """
     resource_class = Diagnostics
+    name = 'diagnostics'
 
     def get(self, instance):
         """
@@ -50,6 +51,7 @@ class HwInfoInterrogator(base.ManagerWithFind):
     Manager class for HwInfo
     """
     resource_class = HwInfo
+    name = 'hwinfo'
 
     def get(self, instance):
         """

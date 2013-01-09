@@ -30,6 +30,7 @@ class Versions(base.ManagerWithFind):
     """
 
     resource_class = Version
+    name = 'versions'
 
     def index(self, url):
         """

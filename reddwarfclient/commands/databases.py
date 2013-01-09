@@ -21,6 +21,7 @@ class Databases(base.ManagerWithFind):
     Manage :class:`Databases` resources.
     """
     resource_class = Database
+    name = 'databases'
 
     def create(self, instance_id, databases):
         """

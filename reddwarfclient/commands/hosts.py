@@ -31,6 +31,7 @@ class Hosts(base.ManagerWithFind):
     Manage :class:`Host` resources.
     """
     resource_class = Host
+    name = 'hosts'
 
     def _list(self, url, response_key):
         resp, body = self.api.client.get(url)

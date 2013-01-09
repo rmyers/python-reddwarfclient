@@ -26,6 +26,7 @@ class Root(base.ManagerWithFind):
     """
     resource_class = users.User
     url = "/instances/%s/root"
+    name = 'root'
 
     def create(self, instance_id):
         """

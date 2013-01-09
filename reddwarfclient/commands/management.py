@@ -33,6 +33,7 @@ class Management(base.ManagerWithFind):
     Manage :class:`Instances` resources.
     """
     resource_class = Instance
+    name = 'management'
 
     def _list(self, url, response_key, limit=None, marker=None):
         resp, body = self.api.client.get(limit_url(url, limit, marker))

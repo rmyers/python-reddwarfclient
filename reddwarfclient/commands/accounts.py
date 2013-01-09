@@ -31,6 +31,7 @@ class Accounts(base.ManagerWithFind):
     """
 
     resource_class = Account
+    name = 'accounts'
 
     def _list(self, url, response_key):
         resp, body = self.api.client.get(url)

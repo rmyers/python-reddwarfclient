@@ -59,7 +59,7 @@ class ReddwarfHTTPClient(httplib2.Http):
                  timeout=None, proxy_tenant_id=None,
                  proxy_token=None, region_name=None,
                  endpoint_type='publicURL', service_type=None,
-                 timings=False):
+                 timings=False, **kwargs):
 
         super(ReddwarfHTTPClient, self).__init__(timeout=timeout)
 
@@ -95,7 +95,8 @@ class ReddwarfHTTPClient(httplib2.Http):
                                       region=region_name,
                                       service_type=service_type,
                                       service_name=service_name,
-                                      service_url=service_url)
+                                      service_url=service_url,
+                                      **kwargs)
 
     def get_timings(self):
         return self.times
@@ -127,7 +128,6 @@ class ReddwarfHTTPClient(httplib2.Http):
         _logger.debug("RESP:%s %s\n", resp, body)
 
     def pretty_log(self, args, kwargs, resp, body):
-        from reddwarfclient import common
         if not _logger.isEnabledFor(logging.DEBUG):
             return
 
@@ -296,39 +296,19 @@ class Dbaas(object):
     def __init__(self, username, api_key, tenant=None, auth_url=None,
                  service_type='reddwarf', service_name='Reddwarf',
                  service_url=None, insecure=False, auth_strategy='keystone',
-                 region_name=None, client_cls=ReddwarfHTTPClient):
-        from reddwarfclient.versions import Versions
-        from reddwarfclient.databases import Databases
-        from reddwarfclient.flavors import Flavors
-        from reddwarfclient.instances import Instances
-        from reddwarfclient.users import Users
-        from reddwarfclient.root import Root
-        from reddwarfclient.hosts import Hosts
-        from reddwarfclient.storage import StorageInfo
-        from reddwarfclient.management import Management
-        from reddwarfclient.accounts import Accounts
-        from reddwarfclient.diagnostics import DiagnosticsInterrogator
-        from reddwarfclient.diagnostics import HwInfoInterrogator
-
+                 region_name=None, client_cls=ReddwarfHTTPClient,
+                 **kwargs):
+        
         self.client = client_cls(username, api_key, tenant, auth_url,
                                  service_type=service_type,
                                  service_name=service_name,
                                  service_url=service_url,
                                  insecure=insecure,
                                  auth_strategy=auth_strategy,
-                                 region_name=region_name)
-        self.versions = Versions(self)
-        self.databases = Databases(self)
-        self.flavors = Flavors(self)
-        self.instances = Instances(self)
-        self.users = Users(self)
-        self.root = Root(self)
-        self.hosts = Hosts(self)
-        self.storage = StorageInfo(self)
-        self.management = Management(self)
-        self.accounts = Accounts(self)
-        self.diagnostics = DiagnosticsInterrogator(self)
-        self.hwinfo = HwInfoInterrogator(self)
+                                 region_name=region_name, **kwargs)
+        
+        from reddwarfclient.commands import resources
+        resources.load(self)
 
         class Mgmt(object):
             def __init__(self, dbaas):

@@ -34,6 +34,7 @@ class Users(base.ManagerWithFind):
     Manage :class:`Users` resources.
     """
     resource_class = User
+    name = 'users'
 
     def create(self, instance_id, users):
         """

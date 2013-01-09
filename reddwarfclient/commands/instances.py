@@ -54,6 +54,7 @@ class Instances(base.ManagerWithFind):
     Manage :class:`Instance` resources.
     """
     resource_class = Instance
+    name = 'instances'
 
     def create(self, name, flavor_id, volume, databases=None, users=None):
         """

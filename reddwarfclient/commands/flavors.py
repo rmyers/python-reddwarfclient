@@ -34,6 +34,7 @@ class Flavors(base.ManagerWithFind):
     Manage :class:`Flavor` resources.
     """
     resource_class = Flavor
+    name = 'flavors'
 
     def __repr__(self):
         return "<Flavors Manager at %s>" % id(self)
