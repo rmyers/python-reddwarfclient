@@ -35,141 +35,21 @@ if os.path.exists(os.path.join(possible_topdir, 'reddwarfclient',
 
 
 from reddwarfclient import common
+from reddwarfclient.commands import resources
 
+# Print out all the available resources
+resources.all_resources()
 
 oparser = None
 
-
-def _pretty_print(info):
-    print json.dumps(info, sort_keys=True, indent=4)
-
-
-class HostCommands(common.AuthedCommandsBase):
-    """Commands to list info on hosts"""
-
-    params = [
-              'name',
-             ]
-
-    def update_all(self):
-        """Update all instances on a host"""
-        self._require('name')
-        self.dbaas.hosts.update_all(self.name)
-
-    def get(self):
-        """List details for the specified host"""
-        self._require('name')
-        self._pretty_print(self.dbaas.hosts.get, self.name)
-
-    def list(self):
-        """List all compute hosts"""
-        self._pretty_list(self.dbaas.hosts.index)
-
-
-class RootCommands(common.AuthedCommandsBase):
-    """List details about the root info for an instance."""
-
-    params = [
-              'id',
-             ]
-
-    def history(self):
-        """List root history for the instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.management.root_enabled_history, self.id)
-
-
-class AccountCommands(common.AuthedCommandsBase):
-    """Commands to list account info"""
-
-    params = [
-              'id',
-             ]
-
-    def list(self):
-        """List all accounts with non-deleted instances"""
-        self._pretty_print(self.dbaas.accounts.index)
-
-    def get(self):
-        """List details for the account provided"""
-        self._require('id')
-        self._pretty_print(self.dbaas.accounts.show, self.id)
-
-
-class InstanceCommands(common.AuthedCommandsBase):
-    """List details about an instance."""
-
-    params = [
-              'deleted',
-              'id',
-              'limit',
-              'marker',
-             ]
-
-    def get(self):
-        """List details for the instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.management.show, self.id)
-
-    def list(self):
-        """List all instances for account"""
-        deleted = None
-        if self.deleted is not None:
-            if self.deleted.lower() in ['true']:
-                deleted = True
-            elif self.deleted.lower() in ['false']:
-                deleted = False
-        self._pretty_paged(self.dbaas.management.index, deleted=deleted)
-
-    def hwinfo(self):
-        """Show hardware information details about an instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.hwinfo.get, self.id)
-
-    def diagnostic(self):
-        """List diagnostic details about an instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.diagnostics.get, self.id)
-
-    def stop(self):
-        """Stop MySQL on the given instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.management.stop, self.id)
-
-    def reboot(self):
-        """Reboot the instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.management.reboot, self.id)
-
-    def migrate(self):
-        """Migrate the instance."""
-        self._require('id')
-        self._pretty_print(self.dbaas.management.migrate, self.id)
-
-
-class StorageCommands(common.AuthedCommandsBase):
-    """Commands to list devices info"""
-
-    params = []
-
-    def list(self):
-        """List details for the storage device"""
-        self._pretty_list(self.dbaas.storage.index)
-
-
+# WTF???
 def config_options(oparser):
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
                        help="Auth API endpoint URL with port and version. \
                             Default: http://localhost:5000/v1.1")
 
 
-COMMANDS = {'account': AccountCommands,
-            'host': HostCommands,
-            'instance': InstanceCommands,
-            'root': RootCommands,
-            'storage': StorageCommands,
-            }
-
+COMMANDS = common.mcli_commands.commands
 
 def main():
     # Parse arguments
