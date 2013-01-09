@@ -14,6 +14,7 @@
 #    under the License.
 
 from reddwarfclient import base
+from reddwarfclient import common
 
 
 class Version(base.Resource):
@@ -40,3 +41,18 @@ class Versions(base.ManagerWithFind):
         """
         resp, body = self.api.client.request(url, "GET")
         return [self.resource_class(self, res) for res in body['versions']]
+
+
+class VersionCommands(common.AuthedCommandsBase):
+    """List available versions"""
+
+    params = [
+              'url',
+             ]
+
+    def list(self):
+        """List all the supported versions"""
+        self._require('url')
+        self._pretty_print(self.dbaas.versions.index, self.url)
+
+common.cli_commands.register('version', VersionCommands)

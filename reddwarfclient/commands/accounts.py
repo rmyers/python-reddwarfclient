@@ -14,6 +14,7 @@
 #    under the License.
 
 from reddwarfclient import base
+from reddwarfclient import common
 from reddwarfclient.common import check_for_exceptions
 
 
@@ -66,3 +67,23 @@ class Accounts(base.ManagerWithFind):
                 return account.name
         except AttributeError:
             return account
+
+
+class AccountCommands(common.AuthedCommandsBase):
+    """Commands to list account info"""
+
+    params = [
+              'id',
+             ]
+
+    def list(self):
+        """List all accounts with non-deleted instances"""
+        self._pretty_print(self.dbaas.accounts.index)
+
+    def get(self):
+        """List details for the account provided"""
+        self._require('id')
+        self._pretty_print(self.dbaas.accounts.show, self.id)
+
+
+common.mcli_commands.register('account', AccountCommands)

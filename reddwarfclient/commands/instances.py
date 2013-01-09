@@ -13,14 +13,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from reddwarfclient import base
-
-import exceptions
 import urlparse
 
+from reddwarfclient import base
+from reddwarfclient import common
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.common import limit_url
 from reddwarfclient.common import Paginated
+from reddwarfclient import exceptions
 
 
 REBOOT_SOFT, REBOOT_HARD = 'SOFT', 'HARD'
@@ -171,3 +171,120 @@ class InstanceStatus(object):
     REBOOT = "REBOOT"
     RESIZE = "RESIZE"
     SHUTDOWN = "SHUTDOWN"
+
+
+class InstanceCommands(common.AuthedCommandsBase):
+    """Commands to perform various instances operations and actions"""
+
+    params = [
+              'flavor',
+              'id',
+              'limit',
+              'marker',
+              'name',
+              'size',
+             ]
+
+    def create(self):
+        """Create a new instance"""
+        self._require('name', 'size')
+        # flavorRef is not required.
+        flavorRef = self.flavor or "http://localhost:8775/v1.0/flavors/1"
+        volume = {"size": self.size}
+        self._pretty_print(self.dbaas.instances.create, self.name,
+                          flavorRef, volume)
+
+    def delete(self):
+        """Delete the specified instance"""
+        self._require('id')
+        print self.dbaas.instances.delete(self.id)
+
+    def get(self):
+        """Get details for the specified instance"""
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.get, self.id)
+
+    def list(self):
+        """List all instances for account"""
+        # limit and marker are not required.
+        limit = self.limit or None
+        if limit:
+            limit = int(limit, 10)
+        self._pretty_paged(self.dbaas.instances.list)
+
+    def resize_volume(self):
+        """Resize an instance volume"""
+        self._require('id', 'size')
+        self._pretty_print(self.dbaas.instances.resize_volume, self.id,
+                          self.size)
+
+    def resize_instance(self):
+        """Resize an instance flavor"""
+        self._require('id', 'flavor')
+        self._pretty_print(self.dbaas.instances.resize_instance, self.id,
+                          self.flavor)
+
+    def restart(self):
+        """Restart the database"""
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.restart, self.id)
+
+    def reset_password(self):
+        """Reset the root user Password"""
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.reset_password, self.id)
+
+
+class MgmtInstanceCommands(common.AuthedCommandsBase):
+    """List details about an instance."""
+
+    params = [
+              'deleted',
+              'id',
+              'limit',
+              'marker',
+             ]
+
+    def get(self):
+        """List details for the instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.show, self.id)
+
+    def list(self):
+        """List all instances for account"""
+        deleted = None
+        if self.deleted is not None:
+            if self.deleted.lower() in ['true']:
+                deleted = True
+            elif self.deleted.lower() in ['false']:
+                deleted = False
+        self._pretty_paged(self.dbaas.management.index, deleted=deleted)
+
+    def hwinfo(self):
+        """Show hardware information details about an instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.hwinfo.get, self.id)
+
+    def diagnostic(self):
+        """List diagnostic details about an instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.diagnostics.get, self.id)
+
+    def stop(self):
+        """Stop MySQL on the given instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.stop, self.id)
+
+    def reboot(self):
+        """Reboot the instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.reboot, self.id)
+
+    def migrate(self):
+        """Migrate the instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.migrate, self.id)
+
+
+common.cli_commands.register('instance', InstanceCommands)
+common.mcli_commands.register('instance', MgmtInstanceCommands)

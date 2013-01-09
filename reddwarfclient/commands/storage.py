@@ -14,6 +14,7 @@
 #    under the License.
 
 from reddwarfclient import base
+from reddwarfclient import common
 
 
 class Device(base.Resource):
@@ -45,3 +46,16 @@ class StorageInfo(base.ManagerWithFind):
         :rtype: list of :class:`Storages`.
         """
         return self._list("/mgmt/storage", "devices")
+
+
+class StorageCommands(common.AuthedCommandsBase):
+    """Commands to list devices info"""
+
+    params = []
+
+    def list(self):
+        """List details for the storage device"""
+        self._pretty_list(self.dbaas.storage.index)
+
+
+common.mcli_commands.register('storage', StorageCommands)

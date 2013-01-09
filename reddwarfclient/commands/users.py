@@ -14,10 +14,11 @@
 #    under the License.
 
 from reddwarfclient import base
+from reddwarfclient import common
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.common import limit_url
 from reddwarfclient.common import Paginated
-import exceptions
+
 import urlparse
 
 
@@ -76,3 +77,35 @@ class Users(base.ManagerWithFind):
         """
         return self._list("/instances/%s/users" % base.getid(instance),
                           "users", limit, marker)
+
+
+class UserCommands(common.AuthedCommandsBase):
+    """User CRUD operations on an instance"""
+    params = [
+              'id',
+              'databases',
+              'name',
+              'password',
+             ]
+
+    def create(self):
+        """Create a user in instance, with access to one or more databases"""
+        self._require('id', 'name', 'password', 'databases')
+        self._make_list('databases')
+        databases = [{'name': dbname} for dbname in self.databases]
+        users = [{'name': self.name, 'password': self.password,
+                  'databases': databases}]
+        self.dbaas.users.create(self.id, users)
+
+    def delete(self):
+        """Delete the specified user"""
+        self._require('id', 'name')
+        self.dbaas.users.delete(self.id, self.name)
+
+    def list(self):
+        """List all the users for an instance"""
+        self._require('id')
+        self._pretty_paged(self.dbaas.users.list, self.id)
+
+
+common.cli_commands.register('users', UserCommands)

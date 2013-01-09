@@ -15,10 +15,10 @@
 
 
 from reddwarfclient import base
-
-import exceptions
-
+from reddwarfclient import common
 from reddwarfclient.common import check_for_exceptions
+from reddwarfclient import exceptions
+
 
 
 class Flavor(base.Resource):
@@ -61,3 +61,16 @@ class Flavors(base.ManagerWithFind):
         """
         return self._get("/flavors/%s" % base.getid(flavor),
                         "flavor")
+
+
+class FlavorsCommands(common.AuthedCommandsBase):
+    """Commands for listing Flavors"""
+
+    params = []
+
+    def list(self):
+        """List the available flavors"""
+        self._pretty_list(self.dbaas.flavors.list)
+
+
+common.cli_commands.register('flavor', FlavorsCommands)

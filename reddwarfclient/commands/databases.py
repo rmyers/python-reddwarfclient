@@ -1,4 +1,5 @@
 from reddwarfclient import base
+from reddwarfclient import common
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.common import limit_url
 from reddwarfclient.common import Paginated
@@ -65,16 +66,32 @@ class Databases(base.ManagerWithFind):
         return self._list("/instances/%s/databases" % base.getid(instance),
                           "databases", limit, marker)
 
-#    def get(self, instance, database):
-#        """
-#        Get a specific instances.
-#
-#        :param flavor: The ID of the :class:`Database` to get.
-#        :rtype: :class:`Database`
-#        """
-#        assert isinstance(instance, Instance)
-#        assert isinstance(database, (Database, int))
-#        instance_id = base.getid(instance)
-#        db_id = base.getid(database)
-#        url = "/instances/%s/databases/%s" % (instance_id, db_id)
-#        return self._get(url, "database")
+
+class DatabaseCommands(common.AuthedCommandsBase):
+    """Database CRUD operations on an instance"""
+
+    params = [
+              'name',
+              'id',
+              'limit',
+              'marker',
+             ]
+
+    def create(self):
+        """Create a database"""
+        self._require('id', 'name')
+        databases = [{'name': self.name}]
+        print self.dbaas.databases.create(self.id, databases)
+
+    def delete(self):
+        """Delete a database"""
+        self._require('id', 'name')
+        print self.dbaas.databases.delete(self.id, self.name)
+
+    def list(self):
+        """List the databases"""
+        self._require('id')
+        self._pretty_paged(self.dbaas.databases.list, self.id)
+
+
+common.cli_commands.register('database', DatabaseCommands)

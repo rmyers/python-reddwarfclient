@@ -68,6 +68,31 @@ def limit_url(url, limit=None, marker=None):
     return url + query
 
 
+class Registry(object):
+    """Simple global registry for holding a dictionary of objects."""
+    
+    def __init__(self):
+        self._commands = {}
+
+    def __getitem__(self, key):
+        """Mimic a dictionary lookup."""
+        return self._commands.__getitem__(key)
+
+    @property
+    def commands(self):
+        """Provide a backward compatable hook."""
+        return self._commands
+
+    def register(self, key, cmd):
+        if key in self._commands:
+            return
+        self._commands[key] = cmd
+
+    def unregister(self, key):
+        """Remove an existing command"""
+        self._commands.pop(key)
+
+
 class CliOptions(object):
     """A token object containing the user, apikey and token which
        is pickleable."""
@@ -393,3 +418,13 @@ class Paginated(object):
 
     def __contains__(self, needle):
         return needle in self.items
+
+
+# Global registry for command line tools
+cli_commands = Registry()
+mcli_commands = Registry()
+
+
+# register the Auth command
+cli_commands.register('auth', Auth)
+mcli_commands.register('auth', Auth)

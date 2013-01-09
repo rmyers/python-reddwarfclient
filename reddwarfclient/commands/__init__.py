@@ -29,6 +29,7 @@ from reddwarfclient.commands.accounts import Accounts
 from reddwarfclient.commands.diagnostics import DiagnosticsInterrogator
 from reddwarfclient.commands.diagnostics import HwInfoInterrogator
 
+
 class ResourceRegisty(object):
     
     entry_point = 'reddwarfclient.resources'
@@ -36,14 +37,14 @@ class ResourceRegisty(object):
     def __init__(self):
         self._resources = {}
 
+    def all_resources(self):
+        """Print out all resources."""
+        for key, value in self._resources.iteritems():
+            print 'Resource %s registered at %s' % (value, key)
+
     def load(self, client):
         for key, klass in self._resources.iteritems():
             setattr(client, key, klass(client))
-        for klass in iter_entry_points(self.entry_point):
-            try:
-                setattr(client, klass.name, klass(client))
-            except Exception:
-                logging.exception("Unable to load extention %s" % klass)
 
     def register(self, resource):
         if resource.name in self._resources:
@@ -67,3 +68,15 @@ resources.register(Management)
 resources.register(Accounts)
 resources.register(DiagnosticsInterrogator)
 resources.register(HwInfoInterrogator)
+
+# Register resources from entry points
+loaded = {}
+for ep in iter_entry_points('reddwarfclient.resources'):
+    if ep.name in loaded:
+        continue
+    loaded[ep.name] = True
+    klass = ep.load()
+    try:
+        resources.register(klass)
+    except Exception:
+        logging.exception("Unable to load extention %s" % klass)

@@ -13,11 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import logging
+
 from reddwarfclient import base
 
-from reddwarfclient import users
-from reddwarfclient.common import check_for_exceptions
-import exceptions
+from reddwarfclient.commands import users
+from reddwarfclient import common
 
 
 class Root(base.ManagerWithFind):
@@ -34,12 +35,51 @@ class Root(base.ManagerWithFind):
         sepcified db instance
         """
         resp, body = self.api.client.post(self.url % instance_id)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         return body['user']['name'], body['user']['password']
 
     def is_root_enabled(self, instance_id):
         """ Return True if root is enabled for the instance;
         False otherwise"""
         resp, body = self.api.client.get(self.url % instance_id)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         return body['rootEnabled']
+
+
+class RootCommands(common.AuthedCommandsBase):
+    """Root user related operations on an instance"""
+
+    params = [
+              'id',
+             ]
+
+    def create(self):
+        """Enable the instance's root user."""
+        self._require('id')
+        try:
+            user, password = self.dbaas.root.create(self.id)
+            print "User:\t\t%s\nPassword:\t%s" % (user, password)
+        except:
+            logging.exception("Create Command Failed")
+
+    def enabled(self):
+        """Check the instance for root access"""
+        self._require('id')
+        self._pretty_print(self.dbaas.root.is_root_enabled, self.id)
+
+
+class MgmtRootCommands(common.AuthedCommandsBase):
+    """List details about the root info for an instance."""
+
+    params = [
+              'id',
+             ]
+
+    def history(self):
+        """List root history for the instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.root_enabled_history, self.id)
+
+
+common.cli_commands.register('root', RootCommands)
+common.mcli_commands.register('root', MgmtRootCommands)
