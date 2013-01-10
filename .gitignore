@@ -3,3 +3,6 @@
 build/*
 html/*
 python_reddwarfclient.egg*
+.project
+.pydevproject
+.settings
