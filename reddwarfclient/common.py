@@ -70,13 +70,16 @@ def limit_url(url, limit=None, marker=None):
 
 class Registry(object):
     """Simple global registry for holding a dictionary of objects."""
-    
+
     def __init__(self):
         self._commands = {}
 
     def __getitem__(self, key):
         """Mimic a dictionary lookup."""
         return self._commands.__getitem__(key)
+
+    def get(self, key, default=None):
+        return self._commands.get(key, default)
 
     @property
     def commands(self):
@@ -212,7 +215,7 @@ class CommandsBase(object):
     params = []
 
     def __init__(self, parser):
-        self._parse_options(parser)
+        self.options, self.args = self._parse_options(parser)
 
     def _get_client(self):
         """Creates the all important client object."""
@@ -232,7 +235,9 @@ class CommandsBase(object):
                           region_name=self.region,
                           service_url=self.service_url,
                           insecure=self.insecure,
-                          client_cls=client_cls)
+                          client_cls=client_cls,
+                          options=self.options,
+                          args=self.args)
         except:
             if self.debug:
                 raise
@@ -258,6 +263,7 @@ class CommandsBase(object):
         for param in opts.__dict__:
             value = getattr(opts, param)
             setattr(self, param, value)
+        return opts, args
 
     def _require(self, *params):
         for param in params:

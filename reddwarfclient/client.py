@@ -59,7 +59,7 @@ class ReddwarfHTTPClient(httplib2.Http):
                  timeout=None, proxy_tenant_id=None,
                  proxy_token=None, region_name=None,
                  endpoint_type='publicURL', service_type=None,
-                 timings=False, **kwargs):
+                 timings=False, options=None, args=None):
 
         super(ReddwarfHTTPClient, self).__init__(timeout=timeout)
 
@@ -82,6 +82,8 @@ class ReddwarfHTTPClient(httplib2.Http):
         self.auth_token = None
         self.proxy_token = proxy_token
         self.proxy_tenant_id = proxy_tenant_id
+        self.options = options
+        self.args = args
 
         # httplib2 overrides
         self.force_exception_to_status_code = True
@@ -96,7 +98,8 @@ class ReddwarfHTTPClient(httplib2.Http):
                                       service_type=service_type,
                                       service_name=service_name,
                                       service_url=service_url,
-                                      **kwargs)
+                                      options=self.options,
+                                      args=self.args)
 
     def get_timings(self):
         return self.times
@@ -297,7 +300,7 @@ class Dbaas(object):
                  service_type='reddwarf', service_name='Reddwarf',
                  service_url=None, insecure=False, auth_strategy='keystone',
                  region_name=None, client_cls=ReddwarfHTTPClient,
-                 **kwargs):
+                 options=None, args=None):
         
         self.client = client_cls(username, api_key, tenant, auth_url,
                                  service_type=service_type,
@@ -305,7 +308,9 @@ class Dbaas(object):
                                  service_url=service_url,
                                  insecure=insecure,
                                  auth_strategy=auth_strategy,
-                                 region_name=region_name, **kwargs)
+                                 region_name=region_name,
+                                 options=options,
+                                 args=args)
         
         from reddwarfclient.commands import resources
         resources.load(self)

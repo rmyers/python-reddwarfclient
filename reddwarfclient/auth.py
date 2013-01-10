@@ -13,6 +13,10 @@
 #    under the License.
 
 from reddwarfclient import exceptions
+from reddwarfclient import common
+
+
+authenticators = common.Registry()
 
 
 def get_authenticator_cls(cls_or_name):
@@ -20,14 +24,9 @@ def get_authenticator_cls(cls_or_name):
     if isinstance(cls_or_name, type):
         return cls_or_name
     elif isinstance(cls_or_name, basestring):
-        if cls_or_name == "keystone":
-            return KeyStoneV2Authenticator
-        elif cls_or_name == "rax":
-            return RaxAuthenticator
-        elif cls_or_name == "auth1.1":
-            return Auth1_1
-        elif cls_or_name == "fake":
-            return FakeAuth
+        auth = authenticators.get(cls_or_name)
+        if auth is not None:
+            return auth
 
     raise ValueError("Could not determine authenticator class from the given "
                      "value %r." % cls_or_name)
@@ -46,7 +45,7 @@ class Authenticator(object):
 
     def __init__(self, client, type, url, username, password, tenant,
                  region=None, service_type=None, service_name=None,
-                 service_url=None):
+                 service_url=None, options=None, args=None):
         self.client = client
         self.type = type
         self.url = url
@@ -57,6 +56,8 @@ class Authenticator(object):
         self.service_type = service_type
         self.service_name = service_name
         self.service_url = service_url
+        self.options = options
+        self.args = args
 
     def _authenticate(self, url, body, root_key='access'):
         """Authenticate and extract the service catalog."""
@@ -127,23 +128,6 @@ class Auth1_1(Authenticator):
         body = {"credentials": {"username": self.username,
                                 "key": self.password}}
         return self._authenticate(auth_url, body, root_key='auth')
-
-        try:
-            print(resp_body)
-            self.auth_token = resp_body['auth']['token']['id']
-        except KeyError:
-            raise nova_exceptions.AuthorizationFailure()
-
-        catalog = resp_body['auth']['serviceCatalog']
-        if 'cloudDatabases' not in catalog:
-            raise nova_exceptions.EndpointNotFound()
-        endpoints = catalog['cloudDatabases']
-        for endpoint in endpoints:
-            if self.region_name is None or \
-                endpoint['region'] == self.region_name:
-                self.management_url = endpoint['publicURL']
-                return
-        raise nova_exceptions.EndpointNotFound()
 
 
 class RaxAuthenticator(Authenticator):
@@ -267,3 +251,9 @@ class ServiceCatalog(object):
             raise exceptions.AmbiguousEndpoints(endpoints=matching_endpoints)
         else:
             return matching_endpoints[0].get(endpoint_type, None)
+
+
+authenticators.register('keystone', KeyStoneV2Authenticator)
+authenticators.register('rax', RaxAuthenticator)
+authenticators.register('auth1.1', Auth1_1)
+authenticators.register('fake', FakeAuth)
