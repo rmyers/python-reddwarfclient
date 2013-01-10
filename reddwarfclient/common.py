@@ -22,6 +22,7 @@ import sys
 from reddwarfclient import client
 from reddwarfclient.xml import ReddwarfXmlClient
 from reddwarfclient import exceptions
+from reddwarfclient.utils import Registry
 
 
 def methods_of(obj):
@@ -66,34 +67,6 @@ def limit_url(url, limit=None, marker=None):
         query.append("limit=%s" % limit)
     query = '?' + '&'.join(query)
     return url + query
-
-
-class Registry(object):
-    """Simple global registry for holding a dictionary of objects."""
-
-    def __init__(self):
-        self._commands = {}
-
-    def __getitem__(self, key):
-        """Mimic a dictionary lookup."""
-        return self._commands.__getitem__(key)
-
-    def get(self, key, default=None):
-        return self._commands.get(key, default)
-
-    @property
-    def commands(self):
-        """Provide a backward compatable hook."""
-        return self._commands
-
-    def register(self, key, cmd):
-        if key in self._commands:
-            return
-        self._commands[key] = cmd
-
-    def unregister(self, key):
-        """Remove an existing command"""
-        self._commands.pop(key)
 
 
 class CliOptions(object):

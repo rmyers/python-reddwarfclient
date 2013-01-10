@@ -66,3 +66,31 @@ def slugify(value):
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(_slugify_strip_re.sub('', value).strip().lower())
     return _slugify_hyphenate_re.sub('-', value)
+
+
+class Registry(object):
+    """Simple global registry for holding a dictionary of objects."""
+
+    def __init__(self):
+        self._commands = {}
+
+    def __getitem__(self, key):
+        """Mimic a dictionary lookup."""
+        return self._commands.__getitem__(key)
+
+    def get(self, key, default=None):
+        return self._commands.get(key, default)
+
+    @property
+    def commands(self):
+        """Provide a backward compatable hook."""
+        return self._commands
+
+    def register(self, key, cmd):
+        if key in self._commands:
+            return
+        self._commands[key] = cmd
+
+    def unregister(self, key):
+        """Remove an existing command"""
+        self._commands.pop(key)

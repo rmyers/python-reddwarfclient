@@ -19,7 +19,7 @@ import urlparse
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.common import limit_url
 from reddwarfclient.common import Paginated
-from reddwarfclient.instances import Instance
+from reddwarfclient.commands.instances import Instance
 
 
 class RootHistory(base.Resource):

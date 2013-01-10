@@ -13,10 +13,10 @@
 #    under the License.
 
 from reddwarfclient import exceptions
-from reddwarfclient import common
+from reddwarfclient import utils
 
 
-authenticators = common.Registry()
+authenticators = utils.Registry()
 
 
 def get_authenticator_cls(cls_or_name):
