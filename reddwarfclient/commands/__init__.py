@@ -69,14 +69,10 @@ resources.register(Accounts)
 resources.register(DiagnosticsInterrogator)
 resources.register(HwInfoInterrogator)
 
-# Register resources from entry points
+# load modules from entry points
 loaded = {}
 for ep in iter_entry_points('reddwarfclient.resources'):
     if ep.name in loaded:
         continue
     loaded[ep.name] = True
     klass = ep.load()
-    try:
-        resources.register(klass)
-    except Exception:
-        logging.exception("Unable to load extention %s" % klass)

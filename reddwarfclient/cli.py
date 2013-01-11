@@ -18,8 +18,6 @@
 Reddwarf Command line tool
 """
 
-#TODO(tim.simpson): optparse is deprecated. Replace with argparse.
-import optparse
 import os
 import sys
 
@@ -35,10 +33,6 @@ if os.path.exists(os.path.join(possible_topdir, 'reddwarfclient',
 
 
 from reddwarfclient import common
-from reddwarfclient.commands import resources
-
-# print out the resources for debugging
-resources.all_resources()
 
 COMMANDS = common.cli_commands.commands
 

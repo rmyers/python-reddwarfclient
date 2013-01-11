@@ -18,8 +18,6 @@
 Reddwarf Management Command line tool
 """
 
-import json
-import optparse
 import os
 import sys
 
@@ -35,21 +33,9 @@ if os.path.exists(os.path.join(possible_topdir, 'reddwarfclient',
 
 
 from reddwarfclient import common
-from reddwarfclient.commands import resources
-
-# Print out all the available resources
-resources.all_resources()
-
-oparser = None
-
-# WTF???
-def config_options(oparser):
-    oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
-                       help="Auth API endpoint URL with port and version. \
-                            Default: http://localhost:5000/v1.1")
-
 
 COMMANDS = common.mcli_commands.commands
+
 
 def main():
     # Parse arguments

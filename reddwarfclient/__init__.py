@@ -14,18 +14,6 @@
 #    under the License.
 
 
-from reddwarfclient.commands.accounts import Accounts
-from reddwarfclient.commands.databases import Databases
-from reddwarfclient.commands.flavors import Flavors
-from reddwarfclient.commands.instances import Instances
-from reddwarfclient.commands.hosts import Hosts
-from reddwarfclient.commands.management import Management
-from reddwarfclient.commands.management import RootHistory
-from reddwarfclient.commands.root import Root
-from reddwarfclient.commands.storage import StorageInfo
-from reddwarfclient.commands.users import Users
-from reddwarfclient.commands.versions import Versions
-from reddwarfclient.commands.diagnostics import DiagnosticsInterrogator
-from reddwarfclient.commands.diagnostics import HwInfoInterrogator
+from reddwarfclient.commands import resources
 from reddwarfclient.client import Dbaas
 from reddwarfclient.client import ReddwarfHTTPClient
